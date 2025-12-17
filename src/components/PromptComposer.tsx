@@ -68,13 +68,13 @@ export const PromptComposer: React.FC = () => {
         const dataUrl = `data:${file.type};base64,${base64}`;
         
         if (selectedTool === 'generate') {
-          // Add to reference images (max 2)
-          if (uploadedImages.length < 2) {
+          // Add to reference images (max 14)
+          if (uploadedImages.length < 14) {
             addUploadedImage(dataUrl);
           }
         } else if (selectedTool === 'edit') {
-          // For edit mode, add to separate edit reference images (max 2)
-          if (editReferenceImages.length < 2) {
+          // For edit mode, add to separate edit reference images (max 14)
+          if (editReferenceImages.length < 14) {
             addEditReferenceImage(dataUrl);
           }
           // Set as canvas image if none exists
@@ -183,11 +183,11 @@ export const PromptComposer: React.FC = () => {
             <p className="text-xs text-gray-400 mb-3">Edit an image with masks</p>
           )}
           {selectedTool === 'generate' && (
-            <p className="text-xs text-gray-500 mb-3">Optional, up to 2 images</p>
+            <p className="text-xs text-gray-500 mb-3">Optional, up to 14 images</p>
           )}
           {selectedTool === 'edit' && (
             <p className="text-xs text-gray-500 mb-3">
-              {canvasImage ? 'Optional style references, up to 2 images' : 'Upload image to edit, up to 2 images'}
+              {canvasImage ? 'Optional style references, up to 14 images' : 'Upload image to edit, up to 14 images'}
             </p>
           )}
           <input
@@ -202,8 +202,8 @@ export const PromptComposer: React.FC = () => {
             onClick={() => fileInputRef.current?.click()}
             className="w-full"
             disabled={
-              (selectedTool === 'generate' && uploadedImages.length >= 2) ||
-              (selectedTool === 'edit' && editReferenceImages.length >= 2)
+              (selectedTool === 'generate' && uploadedImages.length >= 14) ||
+              (selectedTool === 'edit' && editReferenceImages.length >= 14)
             }
           >
             <Upload className="h-4 w-4 mr-2" />

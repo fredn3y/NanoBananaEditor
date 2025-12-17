@@ -19,7 +19,7 @@ A production-ready React + TypeScript application for delightful image generatio
 ### 🎨 **AI-Powered Creation**
 - **Text-to-Image Generation** - Create stunning images from descriptive prompts
 - **Live Quality Tips** - Real-time feedback to improve your prompts
-- **Reference Image Support** - Use up to 2 reference images to guide generation
+- **Reference Image Support** - Use up to 14 reference images to guide generation
 - **Advanced Controls** - Fine-tune creativity levels and use custom seeds
 
 ### ✏️ **Intelligent Editing**
@@ -79,7 +79,7 @@ A production-ready React + TypeScript application for delightful image generatio
 ### Creating Images
 1. Select **Generate** mode
 2. Write a detailed prompt describing your desired image
-3. Optionally upload reference images (max 2)
+3. Optionally upload reference images (max 14)
 4. Adjust creativity settings if needed
 5. Click **Generate** or press `Cmd/Ctrl + Enter`
 
@@ -152,7 +152,7 @@ VITE_GEMINI_API_KEY=your_gemini_api_key_here
 ```
 
 ### Model Configuration
-- **Model**: `gemini-2.5-flash-image-preview`
+- **Model**: `gemini-3-pro-image-preview`
 - **Output Format**: 1024×1024 PNG with SynthID watermarks
 - **Input Formats**: PNG, JPEG, WebP
 - **Temperature Range**: 0-1 (0 = deterministic, 1 = creative)
