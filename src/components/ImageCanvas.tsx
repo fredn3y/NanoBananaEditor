@@ -361,7 +361,7 @@ export const ImageCanvas: React.FC = () => {
             </span>
             <span className="text-gray-600 hidden md:inline">•</span>
             <span className="text-yellow-400 hidden md:inline">⚡</span>
-            <span className="hidden md:inline">Powered by Gemini 2.5 Flash Image</span>
+            <span className="hidden md:inline">Powered by Gemini 3 Pro Image</span>
           </div>
         </div>
       </div>
