@@ -5,11 +5,15 @@ import { generateId } from '../utils/imageUtils';
 import { Generation, Edit, Asset } from '../types';
 
 export const useImageGeneration = () => {
-  const { addGeneration, setIsGenerating, setCanvasImage, setCurrentProject, currentProject } = useAppStore();
+  const { addGeneration, setIsGenerating, setCanvasImage, setCurrentProject, currentProject, aspectRatio, resolution } = useAppStore();
 
   const generateMutation = useMutation({
     mutationFn: async (request: GenerationRequest) => {
-      const images = await geminiService.generateImage(request);
+      const images = await geminiService.generateImage({
+        ...request,
+        aspectRatio: request.aspectRatio || aspectRatio,
+        resolution: request.resolution || resolution,
+      });
       return images;
     },
     onMutate: () => {
@@ -31,7 +35,8 @@ export const useImageGeneration = () => {
           id: generateId(),
           prompt: request.prompt,
           parameters: {
-            aspectRatio: '1:1',
+            aspectRatio: request.aspectRatio || aspectRatio,
+            resolution: request.resolution || resolution,
             seed: request.seed,
             temperature: request.temperature
           },
@@ -89,30 +94,43 @@ export const useImageGeneration = () => {
 };
 
 export const useImageEditing = () => {
-  const { 
-    addEdit, 
-    setIsGenerating, 
-    setCanvasImage, 
-    canvasImage, 
-    editReferenceImages,
-    brushStrokes,
-    selectedGenerationId,
-    currentProject,
-    seed,
-    temperature 
-  } = useAppStore();
+  const { addEdit, setIsGenerating, setCanvasImage } = useAppStore();
 
   const editMutation = useMutation({
     mutationFn: async (instruction: string) => {
+      // Get fresh state at mutation time to avoid stale closures
+      const state = useAppStore.getState();
+      const {
+        canvasImage,
+        uploadedImages,
+        editReferenceImages,
+        brushStrokes,
+        seed,
+        temperature,
+        aspectRatio,
+        resolution
+      } = state;
+
+      console.log('[Edit] Starting edit with:', {
+        hasCanvasImage: !!canvasImage,
+        uploadedImagesCount: uploadedImages.length,
+        instruction,
+        aspectRatio,
+        resolution
+      });
+
       // Always use canvas image as primary target if available, otherwise use first uploaded image
       const sourceImage = canvasImage || uploadedImages[0];
-      if (!sourceImage) throw new Error('No image to edit');
-      
+      if (!sourceImage) {
+        console.error('[Edit] No source image found!');
+        throw new Error('No image to edit. Please upload or generate an image first.');
+      }
+
       // Convert canvas image to base64
-      const base64Image = sourceImage.includes('base64,') 
-        ? sourceImage.split('base64,')[1] 
+      const base64Image = sourceImage.includes('base64,')
+        ? sourceImage.split('base64,')[1]
         : sourceImage;
-      
+
       // Get reference images for style guidance
       let referenceImages = editReferenceImages
         .filter(img => img.includes('base64,'))
@@ -208,18 +226,25 @@ export const useImageEditing = () => {
         referenceImages: referenceImages.length > 0 ? referenceImages : undefined,
         maskImage,
         temperature,
-        seed
+        seed,
+        aspectRatio,
+        resolution
       };
-      
+
+      console.log('[Edit] Sending request to Gemini API...');
       const images = await geminiService.editImage(request);
-      return { images, maskedReferenceImage };
+      console.log('[Edit] Received response:', { imageCount: images.length });
+      return { images, maskedReferenceImage, hadBrushStrokes: brushStrokes.length > 0 };
     },
     onMutate: () => {
       setIsGenerating(true);
     },
-    onSuccess: ({ images, maskedReferenceImage }, instruction) => {
+    onSuccess: ({ images, maskedReferenceImage, hadBrushStrokes }, instruction) => {
       if (images.length > 0) {
-        const outputAssets: Asset[] = images.map((base64, index) => ({
+        // Get fresh state for creating the edit record
+        const { selectedGenerationId, currentProject, selectEdit, selectGeneration } = useAppStore.getState();
+
+        const outputAssets: Asset[] = images.map((base64) => ({
           id: generateId(),
           type: 'output',
           url: `data:image/png;base64,${base64}`,
@@ -243,7 +268,7 @@ export const useImageEditing = () => {
         const edit: Edit = {
           id: generateId(),
           parentGenerationId: selectedGenerationId || (currentProject?.generations[currentProject.generations.length - 1]?.id || ''),
-          maskAssetId: brushStrokes.length > 0 ? generateId() : undefined,
+          maskAssetId: hadBrushStrokes ? generateId() : undefined,
           maskReferenceAsset,
           instruction,
           outputAssets,
@@ -251,9 +276,8 @@ export const useImageEditing = () => {
         };
 
         addEdit(edit);
-        
+
         // Automatically load the edited image in the canvas
-        const { selectEdit, selectGeneration } = useAppStore.getState();
         setCanvasImage(outputAssets[0].url);
         selectEdit(edit.id);
         selectGeneration(null);

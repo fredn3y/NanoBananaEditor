@@ -9,6 +9,8 @@ export interface GenerationRequest {
   referenceImages?: string[]; // base64 array
   temperature?: number;
   seed?: number;
+  aspectRatio?: string;
+  resolution?: string;
 }
 
 export interface EditRequest {
@@ -18,6 +20,8 @@ export interface EditRequest {
   maskImage?: string; // base64
   temperature?: number;
   seed?: number;
+  aspectRatio?: string;
+  resolution?: string;
 }
 
 export interface SegmentationRequest {
@@ -45,6 +49,13 @@ export class GeminiService {
       const response = await genAI.models.generateContent({
         model: "gemini-3-pro-image-preview",
         contents,
+        config: {
+          responseModalities: ['TEXT', 'IMAGE'],
+          imageConfig: {
+            aspectRatio: request.aspectRatio || '1:1',
+            imageSize: request.resolution || '1K',
+          },
+        },
       });
 
       const images: string[] = [];
@@ -98,6 +109,13 @@ export class GeminiService {
       const response = await genAI.models.generateContent({
         model: "gemini-3-pro-image-preview",
         contents,
+        config: {
+          responseModalities: ['TEXT', 'IMAGE'],
+          imageConfig: {
+            aspectRatio: request.aspectRatio || '1:1',
+            imageSize: request.resolution || '1K',
+          },
+        },
       });
 
       const images: string[] = [];

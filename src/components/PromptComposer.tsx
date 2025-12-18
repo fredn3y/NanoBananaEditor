@@ -18,6 +18,10 @@ export const PromptComposer: React.FC = () => {
     setTemperature,
     seed,
     setSeed,
+    aspectRatio,
+    setAspectRatio,
+    resolution,
+    setResolution,
     isGenerating,
     uploadedImages,
     addUploadedImage,
@@ -101,8 +105,29 @@ export const PromptComposer: React.FC = () => {
     setCanvasImage(null);
     setSeed(null);
     setTemperature(0.7);
+    setAspectRatio('1:1');
+    setResolution('1K');
     setShowClearConfirm(false);
   };
+
+  const aspectRatioOptions = [
+    { value: '1:1', label: '1:1 (Square)' },
+    { value: '16:9', label: '16:9 (Landscape)' },
+    { value: '9:16', label: '9:16 (Portrait)' },
+    { value: '4:3', label: '4:3' },
+    { value: '3:4', label: '3:4' },
+    { value: '3:2', label: '3:2' },
+    { value: '2:3', label: '2:3' },
+    { value: '4:5', label: '4:5' },
+    { value: '5:4', label: '5:4' },
+    { value: '21:9', label: '21:9 (Ultra-wide)' },
+  ];
+
+  const resolutionOptions = [
+    { value: '1K', label: '1K (Default)' },
+    { value: '2K', label: '2K' },
+    { value: '4K', label: '4K' },
+  ];
 
   const tools = [
     { id: 'generate', icon: Wand2, label: 'Generate', description: 'Create from text' },
@@ -339,6 +364,42 @@ export const PromptComposer: React.FC = () => {
         
         {showAdvanced && (
           <div className="mt-4 space-y-4">
+            {/* Aspect Ratio */}
+            <div>
+              <label className="text-xs text-gray-400 mb-2 block">
+                Aspect Ratio
+              </label>
+              <select
+                value={aspectRatio}
+                onChange={(e) => setAspectRatio(e.target.value)}
+                className="w-full h-8 px-2 bg-gray-900 border border-gray-700 rounded text-xs text-gray-100 cursor-pointer"
+              >
+                {aspectRatioOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Resolution */}
+            <div>
+              <label className="text-xs text-gray-400 mb-2 block">
+                Resolution
+              </label>
+              <select
+                value={resolution}
+                onChange={(e) => setResolution(e.target.value)}
+                className="w-full h-8 px-2 bg-gray-900 border border-gray-700 rounded text-xs text-gray-100 cursor-pointer"
+              >
+                {resolutionOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
             {/* Temperature */}
             <div>
               <label className="text-xs text-gray-400 mb-2 block">
@@ -354,7 +415,7 @@ export const PromptComposer: React.FC = () => {
                 className="w-full h-2 bg-gray-800 rounded-lg appearance-none cursor-pointer slider"
               />
             </div>
-            
+
             {/* Seed */}
             <div>
               <label className="text-xs text-gray-400 mb-2 block">

@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
-import { Project, Generation, Edit, SegmentationMask, BrushStroke } from '../types';
+import { Project, Generation, Edit, BrushStroke } from '../types';
 
 interface AppState {
   // Current project
@@ -25,6 +25,8 @@ interface AppState {
   currentPrompt: string;
   temperature: number;
   seed: number | null;
+  aspectRatio: string;
+  resolution: string;
   
   // History and variants
   selectedGenerationId: string | null;
@@ -60,6 +62,8 @@ interface AppState {
   setCurrentPrompt: (prompt: string) => void;
   setTemperature: (temp: number) => void;
   setSeed: (seed: number | null) => void;
+  setAspectRatio: (ratio: string) => void;
+  setResolution: (resolution: string) => void;
   
   addGeneration: (generation: Generation) => void;
   addEdit: (edit: Edit) => void;
@@ -74,7 +78,7 @@ interface AppState {
 
 export const useAppStore = create<AppState>()(
   devtools(
-    (set, get) => ({
+    (set) => ({
       // Initial state
       currentProject: null,
       canvasImage: null,
@@ -92,6 +96,8 @@ export const useAppStore = create<AppState>()(
       currentPrompt: '',
       temperature: 0.7,
       seed: null,
+      aspectRatio: '1:1',
+      resolution: '1K',
       
       selectedGenerationId: null,
       selectedEditId: null,
@@ -134,6 +140,8 @@ export const useAppStore = create<AppState>()(
       setCurrentPrompt: (prompt) => set({ currentPrompt: prompt }),
       setTemperature: (temp) => set({ temperature: temp }),
       setSeed: (seed) => set({ seed: seed }),
+      setAspectRatio: (ratio) => set({ aspectRatio: ratio }),
+      setResolution: (resolution) => set({ resolution: resolution }),
       
       addGeneration: (generation) => set((state) => ({
         currentProject: state.currentProject ? {
